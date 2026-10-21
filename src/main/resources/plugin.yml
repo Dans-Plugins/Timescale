@@ -1,0 +1,6 @@
+name: Timescale
+version: '${version}'
+main: com.dansplugins.timescale.Timescale
+api-version: '1.16'
+authors: ["Daniel McCoy Stephenson"]
+description: Slows the passage of in-game time
