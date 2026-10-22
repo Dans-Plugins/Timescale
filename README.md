@@ -10,7 +10,7 @@ This plugin was proposed from a Kingdom: First Era player request on 2026-09-04 
 
 ## Project Status
 
-**Pre-implementation.** No code yet. The scope of the first release is defined in [MVP.md](MVP.md).
+**Pre-implementation.** No user-facing features yet. The scope of the first release is defined in [MVP.md](MVP.md).
 
 ## Planned Features
 
