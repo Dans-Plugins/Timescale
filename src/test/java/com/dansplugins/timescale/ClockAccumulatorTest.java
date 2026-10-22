@@ -6,8 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class ClockAccumulatorTest {
+
+    /** Generous cap so a clock that never advances fails the test instead of hanging it. */
+    private static final long MAX_SERVER_TICKS = 1_000_000L;
 
     /** Runs server ticks from {@code start} until world time reaches {@code end}; returns the server ticks taken. */
     private static long serverTicksToReach(ClockAccumulator clock, long start, long end) {
@@ -16,6 +20,9 @@ class ClockAccumulatorTest {
         while (time < end) {
             time += clock.ticksToAdvance(time);
             serverTicks++;
+            if (serverTicks > MAX_SERVER_TICKS) {
+                fail("clock did not reach " + end + " within " + MAX_SERVER_TICKS + " server ticks; stuck at " + time);
+            }
         }
         return serverTicks;
     }
