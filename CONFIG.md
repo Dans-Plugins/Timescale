@@ -9,7 +9,7 @@ Timescale writes `plugins/Timescale/config.yml` on first start. Changes take eff
 
 A vanilla day and night are ten minutes each, so `day-ratio: 3.0` and `night-ratio: 1.0` give a thirty-minute day followed by a ten-minute night. Ratios below `1.0` speed that half up.
 
-A ratio that is missing, not a number, zero, negative or not finite falls back to `1.0`, and a warning naming the key is written to the server log.
+A ratio that is not a number, zero, negative or not finite falls back to `1.0`, and a warning naming the key is written to the server log. A key removed from the file uses its default of `1.0`.
 
 ## What Timescale changes
 
