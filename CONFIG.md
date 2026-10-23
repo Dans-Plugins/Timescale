@@ -13,6 +13,6 @@ A ratio that is missing, not a number, zero, negative or not finite falls back t
 
 ## What Timescale changes
 
-- `doDaylightCycle` is set to `false` on every overworld-type world on start, and Timescale advances the time of those worlds itself every tick. It is set back to `true` when the plugin is disabled.
+- `doDaylightCycle` is set to `false` on every overworld-type world on start, and Timescale advances the time of those worlds itself every tick. It is set back to `true` when the plugin is disabled. On Minecraft 1.21.11 and later the same gamerule is called `advance_time`; Timescale uses whichever name the server has, and disables itself with an error in the log if it finds neither.
 - The nether, the end and any other non-overworld world are left alone.
 - Only the clock is scaled. Crop growth, furnaces, mob spawning, potions and hunger stay on real ticks, so a longer day means more of them per day.

@@ -1,5 +1,6 @@
 package com.dansplugins.timescale;
 
+import org.bukkit.GameRule;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -18,8 +19,17 @@ public final class Timescale extends JavaPlugin {
             getLogger().warning(warning);
         }
 
-        clockTask = new ClockTask(() -> BukkitWorldClock.scaledWorlds(getServer().getWorlds()),
-config.getDayRatio(), config.getNightRatio());
+        GameRule<Boolean> daylightCycleRule = BukkitWorldClock.findDaylightCycleRule();
+        if (daylightCycleRule == null) {
+            // Without the gamerule, vanilla would keep moving the clock alongside this plugin.
+            getLogger().severe("Could not find the daylight-cycle gamerule (tried "
+                    + BukkitWorldClock.DAYLIGHT_CYCLE_RULE_NAMES + "); disabling Timescale");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
+        clockTask = new ClockTask(() -> BukkitWorldClock.scaledWorlds(getServer().getWorlds(), daylightCycleRule),
+                config.getDayRatio(), config.getNightRatio());
         clockTask.disableDaylightCycle();
         getServer().getScheduler().runTaskTimer(this, clockTask, 1L, 1L);
         getLogger().info("Day ratio " + config.getDayRatio() + ", night ratio " + config.getNightRatio());
