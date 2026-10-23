@@ -1,0 +1,7 @@
+# Timescale configuration. See CONFIG.md for details.
+
+# How many times longer the day half of the cycle lasts. 1.0 is vanilla; 3.0 makes it three times longer.
+day-ratio: 1.0
+
+# How many times longer the night half of the cycle lasts. 1.0 is vanilla.
+night-ratio: 1.0
