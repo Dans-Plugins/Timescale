@@ -50,11 +50,32 @@ public final class BukkitWorldClock implements WorldClock {
     /** Returns this server's daylight-cycle gamerule, or {@code null} if none of the known names resolves. */
     @SuppressWarnings("unchecked")
     public static GameRule<Boolean> findDaylightCycleRule() {
-        GameRule<?> rule = findFirst(DAYLIGHT_CYCLE_RULE_NAMES, GameRule::getByName);
-        if (rule == null || rule.getType() != Boolean.class) {
+        GameRule<?> rule = findFirst(DAYLIGHT_CYCLE_RULE_NAMES, BukkitWorldClock::gameRuleByName);
+        if (rule == null || invokeGameRuleMethod("getType", rule) != Boolean.class) {
             return null;
         }
         return (GameRule<Boolean>) rule;
+    }
+
+    private static GameRule<?> gameRuleByName(String name) {
+        return (GameRule<?>) invokeGameRuleMethod("getByName", null, name);
+    }
+
+    /**
+     * Calls a {@link GameRule} method reflectively. {@code GameRule} is a class up to 1.21.4 and an
+     * interface from 1.21.11, so a compiled call to any of its methods fails to link on one side or
+     * the other; looking the method up at runtime works on both.
+     */
+    private static Object invokeGameRuleMethod(String method, GameRule<?> target, Object... args) {
+        Class<?>[] types = new Class<?>[args.length];
+        for (int i = 0; i < args.length; i++) {
+            types[i] = args[i].getClass();
+        }
+        try {
+            return GameRule.class.getMethod(method, types).invoke(target, args);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException("GameRule." + method + " failed", e);
+        }
     }
 
     /**
