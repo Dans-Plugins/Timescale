@@ -10,7 +10,7 @@ This plugin was proposed from a Kingdom: First Era player request on 2026-09-04 
 
 ## Project Status
 
-**In development, not yet released.** The clock is scaled with separate day and night ratios ([CONFIG.md](CONFIG.md)); sleep, commands and re-applying the gamerule on world load are still to come. The scope of the first release is defined in [MVP.md](MVP.md).
+**In development, not yet released.** The clock is scaled with separate day and night ratios ([CONFIG.md](CONFIG.md)), and the daylight-cycle gamerule is re-applied when a world loads; sleep and commands are still to come. The scope of the first release is defined in [MVP.md](MVP.md).
 
 ## Planned Features
 
