@@ -31,6 +31,7 @@ public final class Timescale extends JavaPlugin {
         clockTask = new ClockTask(() -> BukkitWorldClock.scaledWorlds(getServer().getWorlds(), daylightCycleRule),
                 config.getDayRatio(), config.getNightRatio());
         clockTask.disableDaylightCycle();
+        getServer().getPluginManager().registerEvents(new WorldLoadListener(daylightCycleRule), this);
         getServer().getScheduler().runTaskTimer(this, clockTask, 1L, 1L);
         getLogger().info("Day ratio " + config.getDayRatio() + ", night ratio " + config.getNightRatio());
     }
