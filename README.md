@@ -8,6 +8,15 @@ It is deliberately the smallest plugin in this set: it turns off the vanilla day
 
 This plugin was proposed from a Kingdom: First Era player request on 2026-09-04 ("slow timeline").
 
+### Preview: the same forty minutes at two ratios
+
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/images/timescale-clock-poster.png">
+  <img src="docs/images/timescale-clock.gif" width="640" alt="Two views of the same cottage side by side over the same forty real minutes. On the left, the default config.yml (day-ratio 1.0, night-ratio 1.0, vanilla speed), the sun crosses the sky twice and the clock reaches day 3, 06:00. On the right, day-ratio 3.0 and night-ratio 1.0, the day lasts thirty minutes and the night ten, and the clock reaches day 2, 06:00. A lantern lights the cottage at night.">
+</picture>
+
+*Left: the default `config.yml` (`day-ratio: 1.0`, `night-ratio: 1.0`, vanilla). Right: `day-ratio: 3.0`, `night-ratio: 1.0`, the example in [CONFIG.md](CONFIG.md). Both clocks are stepped one server tick at a time through a copy of `ClockAccumulator`, and the sun follows Minecraft's own path (up at time 0, overhead at 6000, down at 12000). Rendered headless with [Strata](https://github.com/Preponderous-Software/strata) 0.6.0 by [`scripts/preview/render_clock.py`](scripts/preview/render_clock.py); the cottage and lantern are decoration.*
+
 ## Project Status
 
 **In development, not yet released.** The clock is scaled with separate day and night ratios ([CONFIG.md](CONFIG.md)), the daylight-cycle gamerule is re-applied when a world loads, and sleeping still skips the night; commands are still to come. The scope of the first release is defined in [MVP.md](MVP.md).
