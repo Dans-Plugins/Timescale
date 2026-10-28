@@ -32,6 +32,11 @@ class WorldLoadListenerTest {
         public void setDaylightCycle(boolean enabled) {
             daylightCycle = enabled;
         }
+
+        @Override
+        public boolean isNightSkipped() {
+            return false;
+        }
     }
 
     @Test

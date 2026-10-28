@@ -19,4 +19,7 @@ public interface WorldClock {
 
     /** Sets the {@code doDaylightCycle} gamerule. */
     void setDaylightCycle(boolean enabled);
+
+    /** Returns whether enough players are asleep to skip the night (see {@link SleepRule}). */
+    boolean isNightSkipped();
 }

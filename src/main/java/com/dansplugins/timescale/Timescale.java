@@ -28,8 +28,14 @@ public final class Timescale extends JavaPlugin {
             return;
         }
 
-        clockTask = new ClockTask(() -> BukkitWorldClock.scaledWorlds(getServer().getWorlds(), daylightCycleRule),
-                config.getDayRatio(), config.getNightRatio());
+        GameRule<Integer> sleepingPercentageRule = BukkitWorldClock.findSleepingPercentageRule();
+        if (sleepingPercentageRule == null) {
+            getLogger().warning("Could not find the sleeping-percentage gamerule (tried "
+                    + BukkitWorldClock.SLEEPING_PERCENTAGE_RULE_NAMES + "); sleeping needs every player in bed");
+        }
+
+        clockTask = new ClockTask(() -> BukkitWorldClock.scaledWorlds(getServer().getWorlds(), daylightCycleRule,
+                sleepingPercentageRule), config.getDayRatio(), config.getNightRatio());
         clockTask.disableDaylightCycle();
         getServer().getPluginManager().registerEvents(new WorldLoadListener(daylightCycleRule), this);
         getServer().getScheduler().runTaskTimer(this, clockTask, 1L, 1L);

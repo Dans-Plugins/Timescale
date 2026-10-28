@@ -26,7 +26,8 @@ public final class WorldLoadListener implements Listener {
     @EventHandler
     public void onWorldLoad(WorldLoadEvent event) {
         World world = event.getWorld();
-        disableDaylightCycle(world.getEnvironment(), () -> new BukkitWorldClock(world, daylightCycleRule));
+        // Only the gamerule is set here, so the sleeping-percentage rule is not needed.
+        disableDaylightCycle(world.getEnvironment(), () -> new BukkitWorldClock(world, daylightCycleRule, null));
     }
 
     /**
