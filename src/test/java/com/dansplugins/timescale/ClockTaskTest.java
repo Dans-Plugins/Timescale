@@ -112,6 +112,31 @@ class ClockTaskTest {
     }
 
     @Test
+    void sleepersStillInBedDoNotSkipAnotherDayEachTick() {
+        FakeWorldClock world = new FakeWorldClock(13000);
+        world.nightSkipped = true;
+        ClockTask task = taskFor(1.0, 1.0, world);
+        task.run();
+        task.run();
+        task.run();
+        assertEquals(ClockAccumulator.TICKS_PER_DAY + 2, world.fullTime);
+    }
+
+    @Test
+    void theNextNightCanBeSkippedOnceTheSleepersHaveWoken() {
+        FakeWorldClock world = new FakeWorldClock(13000);
+        world.nightSkipped = true;
+        ClockTask task = taskFor(1.0, 1.0, world);
+        task.run();
+        world.nightSkipped = false;
+        task.run();
+        world.fullTime = ClockAccumulator.TICKS_PER_DAY + 13000;
+        world.nightSkipped = true;
+        task.run();
+        assertEquals(2 * ClockAccumulator.TICKS_PER_DAY, world.fullTime);
+    }
+
+    @Test
     void sleepingInOneWorldLeavesTheOthersOnTheirRatio() {
         FakeWorldClock sleeping = new FakeWorldClock(13000);
         FakeWorldClock awake = new FakeWorldClock(13000);

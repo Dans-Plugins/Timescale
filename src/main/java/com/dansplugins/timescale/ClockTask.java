@@ -1,7 +1,9 @@
 package com.dansplugins.timescale;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -19,6 +21,8 @@ public final class ClockTask implements Runnable {
     private final double dayRatio;
     private final double nightRatio;
     private final Map<UUID, ClockAccumulator> accumulators = new HashMap<>();
+    /** Worlds whose night was skipped while the sleep threshold has stayed met since. */
+    private final Set<UUID> skipped = new HashSet<>();
 
     public ClockTask(Supplier<? extends Iterable<? extends WorldClock>> worlds, double dayRatio, double nightRatio) {
         // Validates both ratios up front rather than on the first tick.
@@ -44,7 +48,11 @@ public final class ClockTask implements Runnable {
             ClockAccumulator accumulator = accumulators.computeIfAbsent(world.getId(),
                     id -> new ClockAccumulator(dayRatio, nightRatio));
             long time = world.getFullTime();
-            if (world.isNightSkipped()) {
+            // Only the tick the threshold is first met skips, so sleepers still in bed afterwards
+            // cannot skip a further day on every tick until they are woken.
+            if (!world.isNightSkipped()) {
+                skipped.remove(world.getId());
+            } else if (skipped.add(world.getId())) {
                 // Vanilla wakes the sleepers but, with the daylight cycle off, leaves the clock alone.
                 world.setFullTime(SleepRule.nextMorning(time));
                 continue;
