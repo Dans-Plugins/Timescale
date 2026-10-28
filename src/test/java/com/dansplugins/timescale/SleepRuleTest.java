@@ -2,6 +2,8 @@ package com.dansplugins.timescale;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +43,35 @@ class SleepRuleTest {
     @Test
     void anEmptyWorldNeverSkips() {
         assertFalse(SleepRule.isNightSkipped(0, 0, false, 0));
+    }
+
+    private static SleepRule.Sleeper asleep() {
+        return new SleepRule.Sleeper(false, true, SleepRule.DEEP_SLEEP_TICKS, false);
+    }
+
+    private static SleepRule.Sleeper awake() {
+        return new SleepRule.Sleeper(false, false, 0, false);
+    }
+
+    @Test
+    void spectatorsAreNotCounted() {
+        SleepRule.Sleeper spectator = new SleepRule.Sleeper(true, false, 0, false);
+        assertTrue(SleepRule.isNightSkipped(List.of(asleep(), spectator), 100));
+        assertFalse(SleepRule.isNightSkipped(List.of(asleep(), awake()), 100));
+    }
+
+    @Test
+    void sleepingIgnoredPlayersCountAsAsleepAlongsideARealSleeper() {
+        SleepRule.Sleeper ignored = new SleepRule.Sleeper(false, false, 0, true);
+        assertTrue(SleepRule.isNightSkipped(List.of(asleep(), ignored), 100));
+        assertFalse(SleepRule.isNightSkipped(List.of(ignored, ignored), 100));
+    }
+
+    @Test
+    void playersWhoHaveJustLainDownDoNotCountYet() {
+        SleepRule.Sleeper drowsy = new SleepRule.Sleeper(false, true, SleepRule.DEEP_SLEEP_TICKS - 1, false);
+        assertFalse(SleepRule.isNightSkipped(List.of(asleep(), drowsy), 100));
+        assertTrue(SleepRule.isNightSkipped(List.of(asleep(), drowsy), 50));
     }
 
     @Test

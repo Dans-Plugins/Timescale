@@ -33,6 +33,29 @@ public final class SleepRule {
         return sleeping && sleepTicks >= DEEP_SLEEP_TICKS;
     }
 
+    /** The sleep state of one player in a world. */
+    public record Sleeper(boolean spectator, boolean sleeping, int sleepTicks, boolean sleepingIgnored) {
+    }
+
+    /** Returns whether enough of {@code players} are asleep to skip the night. */
+    public static boolean isNightSkipped(Iterable<Sleeper> players, int percentage) {
+        int activePlayers = 0;
+        int deepSleepers = 0;
+        boolean anyDeepSleep = false;
+        for (Sleeper player : players) {
+            if (player.spectator()) {
+                continue;
+            }
+            activePlayers++;
+            boolean deeplySleeping = isDeeplySleeping(player.sleeping(), player.sleepTicks());
+            anyDeepSleep |= deeplySleeping;
+            if (deeplySleeping || player.sleepingIgnored()) {
+                deepSleepers++;
+            }
+        }
+        return isNightSkipped(activePlayers, deepSleepers, anyDeepSleep, percentage);
+    }
+
     /**
      * Returns whether enough players are asleep to skip the night.
      *

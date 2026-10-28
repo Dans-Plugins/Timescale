@@ -143,21 +143,12 @@ public final class BukkitWorldClock implements WorldClock {
 
     @Override
     public boolean isNightSkipped() {
-        int activePlayers = 0;
-        int deepSleepers = 0;
-        boolean anyDeepSleep = false;
+        List<SleepRule.Sleeper> sleepers = new ArrayList<>();
         for (Player player : world.getPlayers()) {
-            if (player.getGameMode() == GameMode.SPECTATOR) {
-                continue;
-            }
-            activePlayers++;
-            boolean deeplySleeping = SleepRule.isDeeplySleeping(player.isSleeping(), player.getSleepTicks());
-            anyDeepSleep |= deeplySleeping;
-            if (deeplySleeping || player.isSleepingIgnored()) {
-                deepSleepers++;
-            }
+            sleepers.add(new SleepRule.Sleeper(player.getGameMode() == GameMode.SPECTATOR, player.isSleeping(),
+                    player.getSleepTicks(), player.isSleepingIgnored()));
         }
-        return SleepRule.isNightSkipped(activePlayers, deepSleepers, anyDeepSleep, sleepingPercentage());
+        return SleepRule.isNightSkipped(sleepers, sleepingPercentage());
     }
 
     private int sleepingPercentage() {
