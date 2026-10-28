@@ -1,7 +1,9 @@
 package com.dansplugins.timescale;
 
+import org.bukkit.GameMode;
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +22,25 @@ public final class BukkitWorldClock implements WorldClock {
      */
     static final List<String> DAYLIGHT_CYCLE_RULE_NAMES = List.of("advance_time", "doDaylightCycle");
 
+    /**
+     * Names the sleeping-percentage gamerule may go by, newest first, looked up by name for the same
+     * reason as {@link #DAYLIGHT_CYCLE_RULE_NAMES}.
+     */
+    static final List<String> SLEEPING_PERCENTAGE_RULE_NAMES =
+            List.of("players_sleeping_percentage", "playersSleepingPercentage");
+
     private final World world;
     private final GameRule<Boolean> daylightCycleRule;
+    private final GameRule<Integer> sleepingPercentageRule;
 
-    public BukkitWorldClock(World world, GameRule<Boolean> daylightCycleRule) {
+    /**
+     * @param sleepingPercentageRule the sleeping-percentage gamerule, or {@code null} to use the
+     *                               vanilla default of {@value SleepRule#DEFAULT_SLEEPING_PERCENTAGE}
+     */
+    public BukkitWorldClock(World world, GameRule<Boolean> daylightCycleRule, GameRule<Integer> sleepingPercentageRule) {
         this.world = world;
         this.daylightCycleRule = daylightCycleRule;
+        this.sleepingPercentageRule = sleepingPercentageRule;
     }
 
     /**
@@ -37,24 +52,34 @@ public final class BukkitWorldClock implements WorldClock {
     }
 
     /** Wraps every world whose clock Timescale drives. */
-    public static List<WorldClock> scaledWorlds(List<World> worlds, GameRule<Boolean> daylightCycleRule) {
+    public static List<WorldClock> scaledWorlds(List<World> worlds, GameRule<Boolean> daylightCycleRule,
+                                                GameRule<Integer> sleepingPercentageRule) {
         List<WorldClock> clocks = new ArrayList<>();
         for (World world : worlds) {
             if (isScaled(world.getEnvironment())) {
-                clocks.add(new BukkitWorldClock(world, daylightCycleRule));
+                clocks.add(new BukkitWorldClock(world, daylightCycleRule, sleepingPercentageRule));
             }
         }
         return clocks;
     }
 
     /** Returns this server's daylight-cycle gamerule, or {@code null} if none of the known names resolves. */
-    @SuppressWarnings("unchecked")
     public static GameRule<Boolean> findDaylightCycleRule() {
-        GameRule<?> rule = findFirst(DAYLIGHT_CYCLE_RULE_NAMES, BukkitWorldClock::gameRuleByName);
-        if (rule == null || invokeGameRuleMethod("getType", rule) != Boolean.class) {
+        return findRule(DAYLIGHT_CYCLE_RULE_NAMES, Boolean.class);
+    }
+
+    /** Returns this server's sleeping-percentage gamerule, or {@code null} if none of the known names resolves. */
+    public static GameRule<Integer> findSleepingPercentageRule() {
+        return findRule(SLEEPING_PERCENTAGE_RULE_NAMES, Integer.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> GameRule<T> findRule(List<String> names, Class<T> type) {
+        GameRule<?> rule = findFirst(names, BukkitWorldClock::gameRuleByName);
+        if (rule == null || invokeGameRuleMethod("getType", rule) != type) {
             return null;
         }
-        return (GameRule<Boolean>) rule;
+        return (GameRule<T>) rule;
     }
 
     private static GameRule<?> gameRuleByName(String name) {
@@ -114,5 +139,32 @@ public final class BukkitWorldClock implements WorldClock {
     @Override
     public void setDaylightCycle(boolean enabled) {
         world.setGameRule(daylightCycleRule, enabled);
+    }
+
+    @Override
+    public boolean isNightSkipped() {
+        int activePlayers = 0;
+        int deepSleepers = 0;
+        boolean anyDeepSleep = false;
+        for (Player player : world.getPlayers()) {
+            if (player.getGameMode() == GameMode.SPECTATOR) {
+                continue;
+            }
+            activePlayers++;
+            boolean deeplySleeping = SleepRule.isDeeplySleeping(player.isSleeping(), player.getSleepTicks());
+            anyDeepSleep |= deeplySleeping;
+            if (deeplySleeping || player.isSleepingIgnored()) {
+                deepSleepers++;
+            }
+        }
+        return SleepRule.isNightSkipped(activePlayers, deepSleepers, anyDeepSleep, sleepingPercentage());
+    }
+
+    private int sleepingPercentage() {
+        if (sleepingPercentageRule == null) {
+            return SleepRule.DEFAULT_SLEEPING_PERCENTAGE;
+        }
+        Integer value = world.getGameRuleValue(sleepingPercentageRule);
+        return value != null ? value : SleepRule.DEFAULT_SLEEPING_PERCENTAGE;
     }
 }

@@ -9,7 +9,8 @@ import java.util.function.Supplier;
  * Advances world time once per server tick in place of the vanilla daylight cycle.
  *
  * <p>Each world keeps its own {@link ClockAccumulator} so fractional ticks carry over
- * independently. Only world time and {@code doDaylightCycle} are touched; every other tick-driven
+ * independently. When enough players are asleep the clock jumps to the next morning, as vanilla
+ * sleep would. Only world time and {@code doDaylightCycle} are touched; every other tick-driven
  * mechanic stays on real ticks.
  */
 public final class ClockTask implements Runnable {
@@ -43,6 +44,11 @@ public final class ClockTask implements Runnable {
             ClockAccumulator accumulator = accumulators.computeIfAbsent(world.getId(),
                     id -> new ClockAccumulator(dayRatio, nightRatio));
             long time = world.getFullTime();
+            if (world.isNightSkipped()) {
+                // Vanilla wakes the sleepers but, with the daylight cycle off, leaves the clock alone.
+                world.setFullTime(SleepRule.nextMorning(time));
+                continue;
+            }
             long ticks = accumulator.ticksToAdvance(time);
             if (ticks > 0) {
                 world.setFullTime(time + ticks);

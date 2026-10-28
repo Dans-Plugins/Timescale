@@ -53,4 +53,9 @@ class BukkitWorldClockTest {
         // The test classpath is the 1.21.4 API, where the rule is still called doDaylightCycle.
         assertEquals("doDaylightCycle", BukkitWorldClock.findDaylightCycleRule().getName());
     }
+
+    @Test
+    void findsTheSleepingPercentageRuleOnTheCompileTimeApi() {
+        assertEquals("playersSleepingPercentage", BukkitWorldClock.findSleepingPercentageRule().getName());
+    }
 }
