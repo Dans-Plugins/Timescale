@@ -4,3 +4,15 @@ main: com.dansplugins.timescale.Timescale
 api-version: '1.16'
 authors: ["Daniel McCoy Stephenson"]
 description: Slows the passage of in-game time
+commands:
+  timescale:
+    description: Show the day and night ratios, or set them
+    usage: /<command> [set <day> <night>]
+    permission: timescale.view
+permissions:
+  timescale.view:
+    description: Allows /timescale to show the day and night ratios
+    default: true
+  timescale.set:
+    description: Allows /timescale set to change and save the day and night ratios
+    default: op

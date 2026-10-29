@@ -1,6 +1,6 @@
 # Configuration
 
-Timescale writes `plugins/Timescale/config.yml` on first start. Changes take effect on the next server start.
+Timescale writes `plugins/Timescale/config.yml` on first start. Changes made by editing the file take effect on the next server start. [`/timescale set <day> <night>`](COMMANDS.md) changes both ratios immediately and saves them to this file.
 
 | Key | Default | Meaning |
 |---|---|---|
