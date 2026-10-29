@@ -39,6 +39,24 @@ public final class Timescale extends JavaPlugin {
         clockTask.disableDaylightCycle();
         getServer().getPluginManager().registerEvents(new WorldLoadListener(daylightCycleRule), this);
         getServer().getScheduler().runTaskTimer(this, clockTask, 1L, 1L);
+        getCommand("timescale").setExecutor(new TimescaleCommand(new TimescaleCommand.Ratios() {
+            @Override
+            public double getDayRatio() {
+                return clockTask.getDayRatio();
+            }
+
+            @Override
+            public double getNightRatio() {
+                return clockTask.getNightRatio();
+            }
+
+            @Override
+            public void setRatios(double dayRatio, double nightRatio) {
+                clockTask.setRatios(dayRatio, nightRatio);
+                TimescaleConfig.write(getConfig(), dayRatio, nightRatio);
+                saveConfig();
+            }
+        }));
         getLogger().info("Day ratio " + config.getDayRatio() + ", night ratio " + config.getNightRatio());
     }
 

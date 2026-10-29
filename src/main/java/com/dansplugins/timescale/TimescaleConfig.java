@@ -35,6 +35,12 @@ public final class TimescaleConfig {
         return new TimescaleConfig(dayRatio, nightRatio, warnings);
     }
 
+    /** Writes both ratios to {@code section} under the keys {@link #from} reads. */
+    public static void write(ConfigurationSection section, double dayRatio, double nightRatio) {
+        section.set(DAY_RATIO_KEY, dayRatio);
+        section.set(NIGHT_RATIO_KEY, nightRatio);
+    }
+
     public double getDayRatio() {
         return dayRatio;
     }

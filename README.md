@@ -19,7 +19,7 @@ This plugin was proposed from a Kingdom: First Era player request on 2026-09-04 
 
 ## Project Status
 
-**In development, not yet released.** The clock is scaled with separate day and night ratios ([CONFIG.md](CONFIG.md)), the daylight-cycle gamerule is re-applied when a world loads, and sleeping still skips the night; commands are still to come. The scope of the first release is defined in [MVP.md](MVP.md).
+**In development, not yet released.** The clock is scaled with separate day and night ratios ([CONFIG.md](CONFIG.md)), the daylight-cycle gamerule is re-applied when a world loads, sleeping still skips the night, and `/timescale` reads and sets the ratios at runtime ([COMMANDS.md](COMMANDS.md)). The scope of the first release is defined in [MVP.md](MVP.md).
 
 ## Planned Features
 
@@ -42,9 +42,10 @@ None.
 
 - [MVP](MVP.md) – Scope of the first release, and its deliberate non-goals
 - [Configuration](CONFIG.md) – `config.yml` keys and defaults
+- [Commands](COMMANDS.md) – `/timescale` and its permissions
 - [Changelog](CHANGELOG.md) – User-visible changes
 
-`USER_GUIDE.md` and `COMMANDS.md` land with the first release, per [DOCUMENTATION_PRACTICES.md](https://github.com/Dans-Plugins/dpc-conventions/blob/main/docs/DOCUMENTATION_PRACTICES.md).
+`USER_GUIDE.md` lands with the first release, per [DOCUMENTATION_PRACTICES.md](https://github.com/Dans-Plugins/dpc-conventions/blob/main/docs/DOCUMENTATION_PRACTICES.md).
 
 ## Support
 

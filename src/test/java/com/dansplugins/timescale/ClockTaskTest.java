@@ -158,6 +158,29 @@ class ClockTaskTest {
     }
 
     @Test
+    void setRatiosAppliesFromTheNextRun() {
+        FakeWorldClock world = new FakeWorldClock(0);
+        ClockTask task = taskFor(1.0, 1.0, world);
+        runTimes(task, 10);
+        assertEquals(10L, world.fullTime);
+        task.setRatios(4.0, 2.0);
+        assertEquals(4.0, task.getDayRatio());
+        assertEquals(2.0, task.getNightRatio());
+        runTimes(task, 400);
+        assertEquals(110L, world.fullTime);
+    }
+
+    @Test
+    void setRatiosRejectsInvalidRatiosAndKeepsTheOldOnes() {
+        FakeWorldClock world = new FakeWorldClock(0);
+        ClockTask task = taskFor(2.0, 3.0, world);
+        assertThrows(IllegalArgumentException.class, () -> task.setRatios(-1.0, 1.0));
+        assertThrows(IllegalArgumentException.class, () -> task.setRatios(1.0, Double.POSITIVE_INFINITY));
+        assertEquals(2.0, task.getDayRatio());
+        assertEquals(3.0, task.getNightRatio());
+    }
+
+    @Test
     void rejectsInvalidRatios() {
         assertThrows(IllegalArgumentException.class, () -> taskFor(0.0, 1.0));
         assertThrows(IllegalArgumentException.class, () -> taskFor(1.0, Double.NaN));

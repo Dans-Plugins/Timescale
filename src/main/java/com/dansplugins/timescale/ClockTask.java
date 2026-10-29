@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 public final class ClockTask implements Runnable {
 
     private final Supplier<? extends Iterable<? extends WorldClock>> worlds;
-    private final double dayRatio;
-    private final double nightRatio;
+    private double dayRatio;
+    private double nightRatio;
     private final Map<UUID, ClockAccumulator> accumulators = new HashMap<>();
     /** Worlds whose night was skipped while the sleep threshold has stayed met since. */
     private final Set<UUID> skipped = new HashSet<>();
@@ -30,6 +30,27 @@ public final class ClockTask implements Runnable {
         this.worlds = worlds;
         this.dayRatio = dayRatio;
         this.nightRatio = nightRatio;
+    }
+
+    public double getDayRatio() {
+        return dayRatio;
+    }
+
+    public double getNightRatio() {
+        return nightRatio;
+    }
+
+    /**
+     * Changes both ratios from the next tick on. Each world starts a fresh accumulator, dropping
+     * less than one tick of carried-over remainder.
+     *
+     * @throws IllegalArgumentException if either ratio is not a positive, finite number
+     */
+    public void setRatios(double dayRatio, double nightRatio) {
+        new ClockAccumulator(dayRatio, nightRatio);
+        this.dayRatio = dayRatio;
+        this.nightRatio = nightRatio;
+        accumulators.clear();
     }
 
     /** Turns off {@code doDaylightCycle} on every world so only this task moves the clock. */

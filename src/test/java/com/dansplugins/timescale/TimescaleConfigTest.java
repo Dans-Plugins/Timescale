@@ -68,6 +68,17 @@ class TimescaleConfigTest {
     }
 
     @Test
+    void writtenRatiosReadBackAfterASaveAndReload() throws Exception {
+        YamlConfiguration config = new YamlConfiguration();
+        config.loadFromString("day-ratio: 1.0\nnight-ratio: 1.0\n");
+        TimescaleConfig.write(config, 4.0, 0.5);
+        TimescaleConfig reloaded = parse(config.saveToString());
+        assertEquals(4.0, reloaded.getDayRatio());
+        assertEquals(0.5, reloaded.getNightRatio());
+        assertTrue(reloaded.getWarnings().isEmpty(), reloaded.getWarnings().toString());
+    }
+
+    @Test
     void bundledDefaultConfigIsVanillaSpeedWithoutWarnings() throws IOException {
         try (InputStream in = getClass().getClassLoader().getResourceAsStream("config.yml")) {
             assertNotNull(in, "config.yml must be on the classpath");
