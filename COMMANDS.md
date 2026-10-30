@@ -15,7 +15,9 @@ Sets the day ratio and the night ratio together. Both must be positive numbers; 
 
 The new ratios take effect on the next server tick, without a restart, and are written to `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml` so they survive a restart.
 
-If either value is not a positive number, nothing is changed and the reply names the value that was rejected. A wrong number of arguments replies with `Usage: /timescale set <day> <night>`, and a sender without `timescale.set` is told which permission is missing.
+If either value is not a positive number, nothing is changed and the reply names the value that was rejected. A wrong number of arguments replies with `Usage: /timescale set <day> <night>`, and a sender without `timescale.set` is told which permission is missing; the permission is checked first, so such a sender gets that reply whatever arguments follow `set`.
+
+Any first argument other than `set` (matched case-insensitively) replies with `Usage: /timescale [set <day> <night>]` and changes nothing.
 
 ## Permissions
 
