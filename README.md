@@ -21,12 +21,13 @@ This plugin was proposed from a Kingdom: First Era player request on 2026-09-04 
 
 **In development, not yet released.** The clock is scaled with separate day and night ratios ([CONFIG.md](CONFIG.md)), the daylight-cycle gamerule is re-applied when a world loads, sleeping still skips the night, and `/timescale` reads and sets the ratios at runtime ([COMMANDS.md](COMMANDS.md)). The scope of the first release is defined in [MVP.md](MVP.md).
 
-## Planned Features
+## Features
 
-- A configurable time ratio — `3.0` makes a day take an hour
+- A configurable time ratio — `3.0` for both day and night makes a full day-night cycle take an hour
 - Separate ratios for day and night
 - Sleep that still works, instead of silently breaking
-- A command to read and set the ratio at runtime
+- A command to read and set the ratios at runtime, saved to `config.yml` so they survive a restart
+- The daylight-cycle gamerule is turned off again whenever a world loads, so a reloaded world does not run at vanilla speed on top of Timescale
 
 ## Installation
 
