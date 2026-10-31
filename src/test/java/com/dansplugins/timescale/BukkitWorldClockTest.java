@@ -26,6 +26,12 @@ class BukkitWorldClockTest {
     }
 
     @Test
+    void triesTheCurrentSleepingPercentageNameBeforeTheLegacyOne() {
+        assertEquals(List.of("players_sleeping_percentage", "playersSleepingPercentage"),
+                BukkitWorldClock.SLEEPING_PERCENTAGE_RULE_NAMES);
+    }
+
+    @Test
     void findFirstReturnsTheFirstNameThatResolves() {
         Map<String, String> rules = Map.of("doDaylightCycle", "legacy", "advance_time", "current");
         assertEquals("current", BukkitWorldClock.findFirst(List.of("advance_time", "doDaylightCycle"), rules::get));
