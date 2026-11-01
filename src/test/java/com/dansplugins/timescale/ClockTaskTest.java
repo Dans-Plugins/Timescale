@@ -38,9 +38,17 @@ class ClockTaskTest {
             fullTime = time;
         }
 
+        int daylightCycleWrites;
+
+        @Override
+        public boolean isDaylightCycle() {
+            return Boolean.TRUE.equals(daylightCycle);
+        }
+
         @Override
         public void setDaylightCycle(boolean enabled) {
             daylightCycle = enabled;
+            daylightCycleWrites++;
         }
 
         @Override
@@ -155,6 +163,27 @@ class ClockTaskTest {
         assertEquals(Boolean.FALSE, world.daylightCycle);
         task.restoreDaylightCycle();
         assertEquals(Boolean.TRUE, world.daylightCycle);
+    }
+
+    @Test
+    void daylightCycleTurnedBackOnIsTurnedOffOnTheNextRun() {
+        FakeWorldClock world = new FakeWorldClock(1000);
+        ClockTask task = taskFor(1.0, 1.0, world);
+        task.disableDaylightCycle();
+        world.daylightCycle = true;
+        task.run();
+        assertEquals(Boolean.FALSE, world.daylightCycle);
+        assertEquals(1001L, world.fullTime);
+    }
+
+    @Test
+    void daylightCycleAlreadyOffIsNotRewrittenEachRun() {
+        FakeWorldClock world = new FakeWorldClock(0);
+        ClockTask task = taskFor(1.0, 1.0, world);
+        task.disableDaylightCycle();
+        runTimes(task, 5);
+        assertEquals(1, world.daylightCycleWrites);
+        assertEquals(Boolean.FALSE, world.daylightCycle);
     }
 
     @Test

@@ -12,7 +12,9 @@ import java.util.function.Supplier;
  *
  * <p>Each world keeps its own {@link ClockAccumulator} so fractional ticks carry over
  * independently. When enough players are asleep the clock jumps to the next morning, as vanilla
- * sleep would. Only world time and {@code doDaylightCycle} are touched; every other tick-driven
+ * sleep would. If {@code doDaylightCycle} has been turned back on, for example by a manual
+ * {@code /gamerule}, it is turned off again on the next run. Only world time and
+ * {@code doDaylightCycle} are touched; every other tick-driven
  * mechanic stays on real ticks.
  */
 public final class ClockTask implements Runnable {
@@ -66,6 +68,10 @@ public final class ClockTask implements Runnable {
     @Override
     public void run() {
         for (WorldClock world : worlds.get()) {
+            // A manual /gamerule would otherwise let vanilla move the clock alongside this task.
+            if (world.isDaylightCycle()) {
+                world.setDaylightCycle(false);
+            }
             ClockAccumulator accumulator = accumulators.computeIfAbsent(world.getId(),
                     id -> new ClockAccumulator(dayRatio, nightRatio));
             long time = world.getFullTime();

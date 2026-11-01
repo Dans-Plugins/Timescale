@@ -17,6 +17,9 @@ public interface WorldClock {
 
     void setFullTime(long time);
 
+    /** Returns whether the {@code doDaylightCycle} gamerule is on. */
+    boolean isDaylightCycle();
+
     /** Sets the {@code doDaylightCycle} gamerule. */
     void setDaylightCycle(boolean enabled);
 

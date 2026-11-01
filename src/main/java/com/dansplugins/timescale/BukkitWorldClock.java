@@ -137,6 +137,11 @@ public final class BukkitWorldClock implements WorldClock {
     }
 
     @Override
+    public boolean isDaylightCycle() {
+        return Boolean.TRUE.equals(world.getGameRuleValue(daylightCycleRule));
+    }
+
+    @Override
     public void setDaylightCycle(boolean enabled) {
         world.setGameRule(daylightCycleRule, enabled);
     }
