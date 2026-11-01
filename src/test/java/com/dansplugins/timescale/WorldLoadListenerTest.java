@@ -29,6 +29,11 @@ class WorldLoadListenerTest {
         }
 
         @Override
+        public boolean isDaylightCycle() {
+            return Boolean.TRUE.equals(daylightCycle);
+        }
+
+        @Override
         public void setDaylightCycle(boolean enabled) {
             daylightCycle = enabled;
         }
