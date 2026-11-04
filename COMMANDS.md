@@ -3,7 +3,7 @@
 | Command | Permission | Default | What it does |
 |---|---|---|---|
 | `/timescale` | `timescale.view` | everyone | Shows the current day and night ratios. |
-| `/timescale set <day> <night>` | `timescale.set` | operators | Changes both ratios and saves them to `config.yml`. |
+| `/timescale set <day> <night>` | `timescale.view` and `timescale.set` | operators | Changes both ratios and saves them to `config.yml`. |
 
 ## `/timescale`
 
@@ -25,3 +25,5 @@ Any first argument other than `set` (matched case-insensitively) replies with `U
 |---|---|---|
 | `timescale.view` | `true` | `/timescale` |
 | `timescale.set` | `op` | `/timescale set` |
+
+`timescale.view` is the permission of the whole command, so the server refuses a sender without it before Timescale sees the arguments, even one who holds `timescale.set`. It is on for everyone by default, so this only matters if it has been taken away.
