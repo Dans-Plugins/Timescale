@@ -31,7 +31,7 @@ This plugin was proposed from a Kingdom: First Era player request on 2026-09-04 
 
 ## Installation
 
-Not yet released. Once there is a build, installation will follow the usual DPC pattern: drop the jar in `plugins/` and restart. It will also be available through [Dan's Plugin Manager](https://github.com/Dans-Plugins/Dans-Plugin-Manager).
+Not yet released. A rolling development build of `main` is published as the [`dev` prerelease](https://github.com/Dans-Plugins/Timescale/releases/tag/dev); it is unreleased code, so back up your server before trying it. Installation follows the usual DPC pattern: drop the jar in `plugins/` and restart. See the [User Guide](USER_GUIDE.md). Timescale will also be available through [Dan's Plugin Manager](https://github.com/Dans-Plugins/Dans-Plugin-Manager).
 
 ### Dependencies
 
@@ -41,12 +41,11 @@ None.
 
 ### Documentation
 
+- [User Guide](USER_GUIDE.md) – Choosing ratios, sleeping, removing the plugin and troubleshooting
 - [MVP](MVP.md) – Scope of the first release, and its deliberate non-goals
 - [Configuration](CONFIG.md) – `config.yml` keys and defaults
 - [Commands](COMMANDS.md) – `/timescale` and its permissions
 - [Changelog](CHANGELOG.md) – User-visible changes
-
-`USER_GUIDE.md` lands with the first release, per [DOCUMENTATION_PRACTICES.md](https://github.com/Dans-Plugins/dpc-conventions/blob/main/docs/DOCUMENTATION_PRACTICES.md).
 
 ## Support
 
@@ -58,7 +57,7 @@ Please fill out a bug report [here](https://github.com/Dans-Plugins/Timescale/is
 
 ## Contributing
 
-This repository follows the standards in [dpc-conventions](https://github.com/Dans-Plugins/dpc-conventions). `CONTRIBUTING.md` arrives with the build tooling.
+This repository follows the standards in [dpc-conventions](https://github.com/Dans-Plugins/dpc-conventions). `CONTRIBUTING.md` has not been written yet; until then, build and test with `./gradlew clean build` on JDK 21.
 
 ## License
 
