@@ -46,7 +46,7 @@ public final class ClockTask implements Runnable {
      * Changes both ratios from the next tick on. Each world starts a fresh accumulator, dropping
      * less than one tick of carried-over remainder.
      *
-     * @throws IllegalArgumentException if either ratio is not a positive, finite number
+     * @throws IllegalArgumentException if either ratio fails {@link ClockAccumulator#isValidRatio}
      */
     public void setRatios(double dayRatio, double nightRatio) {
         new ClockAccumulator(dayRatio, nightRatio);

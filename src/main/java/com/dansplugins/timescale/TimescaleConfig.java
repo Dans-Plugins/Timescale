@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * The day and night ratios read from {@code config.yml}.
  *
- * <p>A missing, non-numeric, non-positive or non-finite ratio falls back to {@link #DEFAULT_RATIO}
+ * <p>A missing, non-numeric, non-finite or too small ratio falls back to {@link #DEFAULT_RATIO}
  * (vanilla speed) and records a warning, so a typo slows nothing rather than stopping the plugin.
  */
 public final class TimescaleConfig {
@@ -65,8 +65,8 @@ public final class TimescaleConfig {
             return DEFAULT_RATIO;
         }
         double ratio = ((Number) value).doubleValue();
-        if (!Double.isFinite(ratio) || ratio <= 0.0) {
-            warnings.add(key + " must be a positive, finite number but was " + ratio + "; using " + DEFAULT_RATIO);
+        if (!ClockAccumulator.isValidRatio(ratio)) {
+            warnings.add(key + " must be " + ClockAccumulator.RATIO_RULE + " but was " + ratio + "; using " + DEFAULT_RATIO);
             return DEFAULT_RATIO;
         }
         return ratio;

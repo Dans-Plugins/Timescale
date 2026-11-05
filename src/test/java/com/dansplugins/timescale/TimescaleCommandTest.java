@@ -106,4 +106,26 @@ class TimescaleCommandTest {
         assertFalse(ratios.set);
         assertEquals(3.0, ratios.dayRatio);
     }
+
+    @Test
+    void ratiosBelowTheMinimumAreRejectedNamingTheMinimum() {
+        FakeRatios ratios = new FakeRatios();
+        String dayReply = run(ratios, true, "set", "1e-15", "1");
+        assertTrue(dayReply.startsWith("Day ratio"), dayReply);
+        assertTrue(dayReply.contains(ClockAccumulator.RATIO_RULE), dayReply);
+        assertTrue(dayReply.contains("'1e-15'"), dayReply);
+
+        String nightReply = run(ratios, true, "set", "1", "0.0000416");
+        assertTrue(nightReply.startsWith("Night ratio"), nightReply);
+        assertTrue(nightReply.contains("'0.0000416'"), nightReply);
+        assertFalse(ratios.set);
+    }
+
+    @Test
+    void smallestDocumentedRatioIsAccepted() {
+        FakeRatios ratios = new FakeRatios();
+        run(ratios, true, "set", "0.0000417", "1");
+        assertTrue(ratios.set);
+        assertEquals(0.0000417, ratios.dayRatio);
+    }
 }

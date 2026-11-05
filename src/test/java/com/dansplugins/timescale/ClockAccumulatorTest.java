@@ -106,4 +106,25 @@ class ClockAccumulatorTest {
         assertThrows(IllegalArgumentException.class, () -> new ClockAccumulator(1.0, Double.NaN));
         assertThrows(IllegalArgumentException.class, () -> new ClockAccumulator(1.0, Double.POSITIVE_INFINITY));
     }
+
+    @Test
+    void rejectsRatiosBelowTheMinimum() {
+        assertThrows(IllegalArgumentException.class, () -> new ClockAccumulator(1e-320, 1.0));
+        assertThrows(IllegalArgumentException.class, () -> new ClockAccumulator(1.0, 1e-15));
+        assertThrows(IllegalArgumentException.class,
+                () -> new ClockAccumulator(Math.nextDown(ClockAccumulator.MIN_RATIO), 1.0));
+    }
+
+    @Test
+    void minimumRatioMovesTheClockAboutOneDayPerServerTick() {
+        ClockAccumulator clock = new ClockAccumulator(ClockAccumulator.MIN_RATIO, ClockAccumulator.MIN_RATIO);
+        assertEquals(ClockAccumulator.TICKS_PER_DAY, clock.ticksToAdvance(0), 1.0);
+    }
+
+    @Test
+    void valueQuotedInTheRatioRuleIsAccepted() {
+        assertTrue(ClockAccumulator.RATIO_RULE.contains("0.0000417"), ClockAccumulator.RATIO_RULE);
+        assertTrue(ClockAccumulator.isValidRatio(0.0000417));
+        assertFalse(ClockAccumulator.isValidRatio(0.0000416));
+    }
 }

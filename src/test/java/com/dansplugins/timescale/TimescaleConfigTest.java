@@ -68,6 +68,23 @@ class TimescaleConfigTest {
     }
 
     @Test
+    void ratioBelowTheMinimumFallsBackToVanillaWithWarning() throws Exception {
+        TimescaleConfig config = parse("day-ratio: 1.0e-15\nnight-ratio: 0.0000416\n");
+        assertEquals(TimescaleConfig.DEFAULT_RATIO, config.getDayRatio());
+        assertEquals(TimescaleConfig.DEFAULT_RATIO, config.getNightRatio());
+        assertEquals(2, config.getWarnings().size());
+        assertTrue(config.getWarnings().get(0).contains("day-ratio"), config.getWarnings().get(0));
+        assertTrue(config.getWarnings().get(0).contains(ClockAccumulator.RATIO_RULE), config.getWarnings().get(0));
+    }
+
+    @Test
+    void smallestDocumentedRatioIsKept() throws Exception {
+        TimescaleConfig config = parse("day-ratio: 0.0000417\nnight-ratio: 1.0\n");
+        assertEquals(0.0000417, config.getDayRatio());
+        assertTrue(config.getWarnings().isEmpty(), config.getWarnings().toString());
+    }
+
+    @Test
     void writtenRatiosReadBackAfterASaveAndReload() throws Exception {
         YamlConfiguration config = new YamlConfiguration();
         config.loadFromString("day-ratio: 1.0\nnight-ratio: 1.0\n");

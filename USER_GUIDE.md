@@ -29,7 +29,7 @@ A ratio says how many times longer that half of the cycle lasts. A vanilla day a
 | `3.0` | `3.0` | 30 minutes | 30 minutes | 1 hour |
 | `6.0` | `1.0` | 1 hour | 10 minutes | 1 hour 10 minutes |
 
-Long days with normal-length nights are often what people want: a long night is tedious for anyone without a bed. A ratio below `1.0` speeds that half up.
+Long days with normal-length nights are often what people want: a long night is tedious for anyone without a bed. A ratio below `1.0` speeds that half up, down to a minimum of `1/24000` (about `0.0000417`).
 
 The ratios apply to every overworld-type world on the server. There are no per-world ratios.
 
@@ -37,7 +37,7 @@ The ratios apply to every overworld-type world on the server. There are no per-w
 
 Run `/timescale set <day> <night>`, for example `/timescale set 3 1`. This needs the `timescale.view` and `timescale.set` permissions; everyone has `timescale.view` and operators have `timescale.set` by default. The new ratios apply from the next tick and are saved to `config.yml`.
 
-You can also edit `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml`. An edit to the file takes effect on the next server start. A value that is not a positive number falls back to `1.0`, with a warning in the server log.
+You can also edit `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml`. An edit to the file takes effect on the next server start. A value that is not a number, or is below the minimum, falls back to `1.0`, with a warning in the server log.
 
 ## Sleeping
 
