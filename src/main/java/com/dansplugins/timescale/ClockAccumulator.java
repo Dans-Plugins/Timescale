@@ -17,6 +17,13 @@ public final class ClockAccumulator {
 
     public static final long TICKS_PER_DAY = 24000L;
     public static final long NIGHT_START = 12000L;
+    /**
+     * The smallest ratio accepted, which moves the clock a whole day per server tick. A smaller
+     * ratio defeats the plugin, and one small enough overflows the world's full time.
+     */
+    public static final double MIN_RATIO = 1.0 / TICKS_PER_DAY;
+    /** What a valid ratio is, worded to follow "must be" in a message. */
+    public static final String RATIO_RULE = "a finite number of at least 1/24000 (about 0.0000417)";
 
     private final double dayRatio;
     private final double nightRatio;
@@ -33,6 +40,11 @@ public final class ClockAccumulator {
 
     public double getNightRatio() {
         return nightRatio;
+    }
+
+    /** Returns whether {@code ratio} is finite and at least {@link #MIN_RATIO}. */
+    public static boolean isValidRatio(double ratio) {
+        return Double.isFinite(ratio) && ratio >= MIN_RATIO;
     }
 
     /**
@@ -56,8 +68,8 @@ public final class ClockAccumulator {
     }
 
     private static double requireValidRatio(double ratio, String name) {
-        if (!Double.isFinite(ratio) || ratio <= 0.0) {
-            throw new IllegalArgumentException(name + " must be a positive, finite number but was " + ratio);
+        if (!isValidRatio(ratio)) {
+            throw new IllegalArgumentException(name + " must be " + RATIO_RULE + " but was " + ratio);
         }
         return ratio;
     }

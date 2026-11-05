@@ -56,17 +56,17 @@ public final class TimescaleCommand implements CommandExecutor {
         }
         Double dayRatio = parseRatio(args[1]);
         if (dayRatio == null) {
-            return "Day ratio must be a positive number but was '" + args[1] + "'. " + SET_USAGE;
+            return "Day ratio must be " + ClockAccumulator.RATIO_RULE + " but was '" + args[1] + "'. " + SET_USAGE;
         }
         Double nightRatio = parseRatio(args[2]);
         if (nightRatio == null) {
-            return "Night ratio must be a positive number but was '" + args[2] + "'. " + SET_USAGE;
+            return "Night ratio must be " + ClockAccumulator.RATIO_RULE + " but was '" + args[2] + "'. " + SET_USAGE;
         }
         ratios.setRatios(dayRatio, nightRatio);
         return "Day ratio set to " + dayRatio + ", night ratio set to " + nightRatio + ".";
     }
 
-    /** Returns the ratio, or {@code null} if it is not a positive, finite number. */
+    /** Returns the ratio, or {@code null} if it is not a number {@link ClockAccumulator} accepts. */
     private static Double parseRatio(String text) {
         double ratio;
         try {
@@ -74,9 +74,6 @@ public final class TimescaleCommand implements CommandExecutor {
         } catch (NumberFormatException e) {
             return null;
         }
-        if (!Double.isFinite(ratio) || ratio <= 0.0) {
-            return null;
-        }
-        return ratio;
+        return ClockAccumulator.isValidRatio(ratio) ? ratio : null;
     }
 }
