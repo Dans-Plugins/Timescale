@@ -37,7 +37,7 @@ The ratios apply to every overworld-type world on the server. There are no per-w
 
 Run `/timescale set <day> <night>`, for example `/timescale set 3 1`. This needs the `timescale.view` and `timescale.set` permissions; everyone has `timescale.view` and operators have `timescale.set` by default. The new ratios apply from the next tick and are saved to `config.yml`.
 
-You can also edit `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml`. An edit to the file takes effect on the next server start. A value that is not a number, or is below the minimum, falls back to `1.0`, with a warning in the server log.
+You can also edit `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml`. An edit to the file takes effect on the next server start, and `/timescale set` replaces any edit that has not taken effect yet. A value that is not a number, or is below the minimum, falls back to `1.0`, with a warning in the server log.
 
 ## Sleeping
 
@@ -47,6 +47,7 @@ Sleeping still skips the night. Timescale follows the vanilla sleeping-percentag
 
 - `/time set` works as usual, and the clock carries on from the new time at the same ratios.
 - A manual `/gamerule doDaylightCycle true` (`advance_time` on 1.21.11 and later) on a world Timescale drives is undone on the next tick. To hand the clock back to vanilla, disable or remove Timescale.
+- A world you froze on purpose, such as a lobby kept at noon with the daylight-cycle gamerule off, starts moving. Timescale advances every overworld-type world and no setting excludes one.
 - Another plugin that reads world time to mean "days elapsed" sees days pass more slowly.
 - Do not run Timescale alongside another plugin that drives the clock or the daylight-cycle gamerule, including [Seasons](https://github.com/Dans-Plugins/Seasons). Timescale turns the gamerule off again on every tick, so the two would fight over it.
 
@@ -57,6 +58,8 @@ Sleeping still skips the night. Timescale follows the vanilla sleeping-percentag
 3. Start the server.
 
 When Timescale is disabled it turns the daylight-cycle gamerule back on for every loaded overworld-type world. A world that was not loaded at that moment keeps the rule off, and so does every world if the server crashed instead of stopping cleanly. If a world's clock is frozen after removing Timescale, run `/gamerule doDaylightCycle true` in it (`/gamerule advance_time true` on 1.21.11 and later).
+
+Timescale does not remember what the gamerule was before it was installed, so a world you had frozen on purpose runs again after removal. Turn the gamerule off in that world to freeze it again.
 
 ## Troubleshooting
 
