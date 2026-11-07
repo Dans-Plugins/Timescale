@@ -61,6 +61,14 @@ class SleepRuleTest {
     }
 
     @Test
+    void aSpectatorInBedIsNotARealSleeper() {
+        SleepRule.Sleeper spectator = new SleepRule.Sleeper(true, true, SleepRule.DEEP_SLEEP_TICKS, false);
+        SleepRule.Sleeper ignored = new SleepRule.Sleeper(false, false, 0, true);
+        assertFalse(SleepRule.isNightSkipped(List.of(spectator, ignored), 100));
+        assertFalse(SleepRule.isNightSkipped(List.of(spectator), 0));
+    }
+
+    @Test
     void sleepingIgnoredPlayersCountAsAsleepAlongsideARealSleeper() {
         SleepRule.Sleeper ignored = new SleepRule.Sleeper(false, false, 0, true);
         assertTrue(SleepRule.isNightSkipped(List.of(asleep(), ignored), 100));

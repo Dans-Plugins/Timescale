@@ -69,5 +69,6 @@ Timescale does not remember what the gamerule was before it was installed, so a 
 | `Could not find the daylight-cycle gamerule` in the log, and the plugin disables itself | The server has neither gamerule name Timescale knows. Vanilla keeps the clock. Please [report it](https://github.com/Dans-Plugins/Timescale/issues/new) with your server version. |
 | `Could not find the sleeping-percentage gamerule` in the log | Timescale still runs, but every player must sleep to skip the night. |
 | `day-ratio must be ...` or `night-ratio must be ...` in the log | That value in `config.yml` was rejected, and `1.0` is in use until it is corrected. |
+| `day-ratio is not set` or `night-ratio is not set` in the log | That key is missing from `config.yml`, and `1.0` is in use until it is added back. |
 | Sleeping does not skip the night | Check how many players are needed with the sleeping-percentage gamerule. Spectators are not counted, and at least one player must have been in bed for 100 ticks. |
 | `/timescale` or `/timescale set` is refused by the server | The whole command needs `timescale.view`, and `set` also needs `timescale.set`. See [COMMANDS.md](COMMANDS.md#permissions). |
