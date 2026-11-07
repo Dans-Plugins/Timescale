@@ -41,4 +41,14 @@ class TimescaleTest {
             assertEquals("op", yml.getString("permissions." + TimescaleCommand.SET_PERMISSION + ".default"));
         }
     }
+
+    @Test
+    void pluginYmlUsageMatchesTheUsageTheCommandReplies() throws IOException {
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream("plugin.yml")) {
+            assertNotNull(in, "plugin.yml must be on the classpath");
+            YamlConfiguration yml = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String usage = yml.getString("commands.timescale.usage").replace("<command>", "timescale");
+            assertEquals(TimescaleCommand.USAGE, "Usage: " + usage);
+        }
+    }
 }

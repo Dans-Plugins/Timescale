@@ -18,6 +18,7 @@ class BukkitWorldClockTest {
         assertTrue(BukkitWorldClock.isScaled(World.Environment.NORMAL));
         assertFalse(BukkitWorldClock.isScaled(World.Environment.NETHER));
         assertFalse(BukkitWorldClock.isScaled(World.Environment.THE_END));
+        assertFalse(BukkitWorldClock.isScaled(World.Environment.CUSTOM));
     }
 
     @Test

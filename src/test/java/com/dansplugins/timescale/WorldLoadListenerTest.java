@@ -3,10 +3,12 @@ package com.dansplugins.timescale;
 import org.bukkit.World;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class WorldLoadListenerTest {
 
@@ -67,5 +69,13 @@ class WorldLoadListenerTest {
         WorldLoadListener.disableDaylightCycle(World.Environment.THE_END, () -> end);
         assertNull(nether.daylightCycle);
         assertNull(end.daylightCycle);
+    }
+
+    @Test
+    void neverWrapsAWorldItLeavesAlone() {
+        for (World.Environment environment : List.of(World.Environment.NETHER, World.Environment.THE_END,
+                World.Environment.CUSTOM)) {
+            WorldLoadListener.disableDaylightCycle(environment, () -> fail("wrapped a " + environment + " world"));
+        }
     }
 }

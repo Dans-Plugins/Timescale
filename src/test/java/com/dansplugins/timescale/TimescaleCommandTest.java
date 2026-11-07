@@ -1,6 +1,11 @@
 package com.dansplugins.timescale;
 
+import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -36,12 +41,80 @@ class TimescaleCommandTest {
         return TimescaleCommand.execute(args, canSet, ratios);
     }
 
+    /** A sender holding only {@code permission}; records each message it is sent. */
+    private static CommandSender senderWith(String permission, List<String> messages) {
+        return (CommandSender) Proxy.newProxyInstance(CommandSender.class.getClassLoader(),
+                new Class<?>[] {CommandSender.class}, (proxy, method, args) -> switch (method.getName()) {
+                    case "hasPermission" -> permission.equals(args[0]);
+                    case "sendMessage" -> {
+                        messages.add((String) args[0]);
+                        yield null;
+                    }
+                    default -> throw new UnsupportedOperationException(method.getName());
+                });
+    }
+
+    @Test
+    void onCommandSendsTheReplyToTheSenderAndClaimsTheCommand() {
+        List<String> messages = new ArrayList<>();
+        CommandSender sender = senderWith("timescale.view", messages);
+        boolean handled = new TimescaleCommand(new FakeRatios()).onCommand(sender, null, "timescale", new String[0]);
+        // Returning false would make Bukkit print the plugin.yml usage as well.
+        assertTrue(handled);
+        assertEquals(List.of("Day ratio 3.0, night ratio 1.5 (1.0 is vanilla speed)"), messages);
+    }
+
+    @Test
+    void onCommandLetsASenderWithTheSetPermissionChangeTheRatios() {
+        FakeRatios ratios = new FakeRatios();
+        List<String> messages = new ArrayList<>();
+        CommandSender sender = senderWith(TimescaleCommand.SET_PERMISSION, messages);
+        new TimescaleCommand(ratios).onCommand(sender, null, "timescale", new String[] {"set", "4", "2"});
+        assertTrue(ratios.set);
+        assertEquals(List.of("Day ratio set to 4.0, night ratio set to 2.0."), messages);
+    }
+
+    @Test
+    void onCommandRefusesASenderWithOnlyTheViewPermission() {
+        FakeRatios ratios = new FakeRatios();
+        List<String> messages = new ArrayList<>();
+        CommandSender sender = senderWith("timescale.view", messages);
+        new TimescaleCommand(ratios).onCommand(sender, null, "timescale", new String[] {"set", "4", "2"});
+        assertFalse(ratios.set);
+        assertEquals(1, messages.size());
+        assertTrue(messages.get(0).contains(TimescaleCommand.SET_PERMISSION), messages.get(0));
+    }
+
     @Test
     void noArgumentsShowsBothRatios() {
         FakeRatios ratios = new FakeRatios();
         String reply = run(ratios, false);
         assertTrue(reply.contains("Day ratio 3.0"), reply);
         assertTrue(reply.contains("night ratio 1.5"), reply);
+        assertFalse(ratios.set);
+    }
+
+    @Test
+    void thePermissionIsCheckedBeforeTheArguments() {
+        FakeRatios ratios = new FakeRatios();
+        for (String[] args : new String[][] {{"set"}, {"set", "4"}, {"set", "slow", "1"}, {"set", "4", "1", "2"}}) {
+            String reply = run(ratios, false, args);
+            assertTrue(reply.contains(TimescaleCommand.SET_PERMISSION), reply);
+        }
+        assertFalse(ratios.set);
+    }
+
+    @Test
+    void anUnknownSubcommandShowsUsageWithoutTheSetPermission() {
+        assertEquals(TimescaleCommand.USAGE, run(new FakeRatios(), false, "speed"));
+    }
+
+    @Test
+    void aBadDayRatioLeavesTheNightRatioUnchecked() {
+        FakeRatios ratios = new FakeRatios();
+        String reply = run(ratios, true, "set", "slow", "fast");
+        assertTrue(reply.contains("'slow'"), reply);
+        assertFalse(reply.contains("'fast'"), reply);
         assertFalse(ratios.set);
     }
 

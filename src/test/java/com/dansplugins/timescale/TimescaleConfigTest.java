@@ -55,6 +55,15 @@ class TimescaleConfigTest {
     }
 
     @Test
+    void quotedRatioIsNotANumberAndFallsBackToVanillaWithWarning() throws Exception {
+        TimescaleConfig config = parse("day-ratio: \"3.0\"\nnight-ratio: 2.0\n");
+        assertEquals(TimescaleConfig.DEFAULT_RATIO, config.getDayRatio());
+        assertEquals(2.0, config.getNightRatio());
+        assertEquals(1, config.getWarnings().size());
+        assertTrue(config.getWarnings().get(0).contains("day-ratio"), config.getWarnings().get(0));
+    }
+
+    @Test
     void nonPositiveOrNonFiniteRatiosFallBackToVanillaWithWarnings() throws Exception {
         TimescaleConfig config = parse("day-ratio: 0\nnight-ratio: .nan\n");
         assertEquals(TimescaleConfig.DEFAULT_RATIO, config.getDayRatio());

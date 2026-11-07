@@ -2,6 +2,7 @@ package com.dansplugins.timescale;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -36,8 +37,10 @@ class ClockTaskTest {
         @Override
         public void setFullTime(long time) {
             fullTime = time;
+            fullTimeWrites++;
         }
 
+        int fullTimeWrites;
         int daylightCycleWrites;
 
         @Override
@@ -111,6 +114,45 @@ class ClockTaskTest {
     }
 
     @Test
+    void theClockIsOnlyWrittenWhenAWholeTickIsDue() {
+        FakeWorldClock world = new FakeWorldClock(0);
+        runTimes(taskFor(4.0, 4.0, world), 400);
+        assertEquals(100L, world.fullTime);
+        assertEquals(100, world.fullTimeWrites);
+    }
+
+    @Test
+    void aTimeSetFromOutsideCarriesOnAtTheRatioOfTheNewTime() {
+        FakeWorldClock world = new FakeWorldClock(0);
+        ClockTask task = taskFor(4.0, 2.0, world);
+        task.run();
+        world.fullTime = ClockAccumulator.NIGHT_START;
+        runTimes(task, 7);
+        // The first run left 0.25 behind; seven night runs add 3.5, so three whole ticks are due.
+        // Seven runs at the day ratio would only add 1.75, leaving two.
+        assertEquals(ClockAccumulator.NIGHT_START + 3, world.fullTime);
+    }
+
+    @Test
+    void worldsAreReadAgainOnEveryRun() {
+        FakeWorldClock first = new FakeWorldClock(0);
+        FakeWorldClock second = new FakeWorldClock(0);
+        List<FakeWorldClock> loaded = new ArrayList<>(List.of(first));
+        ClockTask task = new ClockTask(() -> loaded, 1.0, 1.0);
+        task.run();
+
+        loaded.add(second);
+        task.run();
+        assertEquals(2L, first.fullTime);
+        assertEquals(1L, second.fullTime);
+
+        loaded.remove(first);
+        task.run();
+        assertEquals(2L, first.fullTime);
+        assertEquals(2L, second.fullTime);
+    }
+
+    @Test
     void sleepingSkipsToTheNextMorning() {
         long start = 3 * ClockAccumulator.TICKS_PER_DAY + 15000;
         FakeWorldClock world = new FakeWorldClock(start);
@@ -152,6 +194,29 @@ class ClockTaskTest {
         taskFor(1.0, 1.0, sleeping, awake).run();
         assertEquals(ClockAccumulator.TICKS_PER_DAY, sleeping.fullTime);
         assertEquals(13001L, awake.fullTime);
+    }
+
+    @Test
+    void changingTheRatiosDoesNotLetSleepersStillInBedSkipAgain() {
+        FakeWorldClock world = new FakeWorldClock(13000);
+        world.nightSkipped = true;
+        ClockTask task = taskFor(1.0, 1.0, world);
+        task.run();
+        task.setRatios(2.0, 2.0);
+        runTimes(task, 2);
+        assertEquals(ClockAccumulator.TICKS_PER_DAY + 1, world.fullTime);
+    }
+
+    @Test
+    void daylightCycleTurnedBackOnIsTurnedOffOnTheRunThatSkipsTheNight() {
+        FakeWorldClock world = new FakeWorldClock(13000);
+        ClockTask task = taskFor(1.0, 1.0, world);
+        task.disableDaylightCycle();
+        world.daylightCycle = true;
+        world.nightSkipped = true;
+        task.run();
+        assertEquals(Boolean.FALSE, world.daylightCycle);
+        assertEquals(ClockAccumulator.TICKS_PER_DAY, world.fullTime);
     }
 
     @Test
