@@ -1,5 +1,7 @@
 package com.dansplugins.timescale;
 
+import org.bukkit.GameMode;
+import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.junit.jupiter.api.Test;
 
@@ -64,5 +66,64 @@ class BukkitWorldClockTest {
     @Test
     void findsTheSleepingPercentageRuleOnTheCompileTimeApi() {
         assertEquals("playersSleepingPercentage", BukkitWorldClock.findSleepingPercentageRule().getName());
+    }
+
+    @Test
+    void scaledOnlyKeepsOverworldsInOrder() {
+        Map<String, World.Environment> environments = Map.of(
+                "world", World.Environment.NORMAL,
+                "world_nether", World.Environment.NETHER,
+                "second", World.Environment.NORMAL,
+                "world_the_end", World.Environment.THE_END,
+                "custom", World.Environment.CUSTOM);
+        List<String> worlds = List.of("world", "world_nether", "second", "world_the_end", "custom");
+        assertEquals(List.of("world", "second"), BukkitWorldClock.scaledOnly(worlds, environments::get));
+    }
+
+    @Test
+    void scaledOnlyReturnsNothingWhenNoWorldIsAnOverworld() {
+        assertEquals(List.of(), BukkitWorldClock.scaledOnly(List.of("nether"), world -> World.Environment.NETHER));
+    }
+
+    @Test
+    void daylightCycleIsOnOnlyWhenTheGameruleIsTrue() {
+        assertTrue(BukkitWorldClock.isOn(Boolean.TRUE));
+        assertFalse(BukkitWorldClock.isOn(Boolean.FALSE));
+        assertFalse(BukkitWorldClock.isOn(null));
+    }
+
+    @Test
+    void spectatorsAreMarkedAsSpectators() {
+        assertTrue(BukkitWorldClock.sleeperOf(GameMode.SPECTATOR, false, 0, false).spectator());
+        assertFalse(BukkitWorldClock.sleeperOf(GameMode.SURVIVAL, false, 0, false).spectator());
+        assertFalse(BukkitWorldClock.sleeperOf(GameMode.CREATIVE, false, 0, false).spectator());
+        assertFalse(BukkitWorldClock.sleeperOf(GameMode.ADVENTURE, false, 0, false).spectator());
+    }
+
+    @Test
+    void sleeperCarriesThePlayersSleepState() {
+        assertEquals(new SleepRule.Sleeper(false, true, 42, false),
+                BukkitWorldClock.sleeperOf(GameMode.SURVIVAL, true, 42, false));
+        assertEquals(new SleepRule.Sleeper(false, false, 7, true),
+                BukkitWorldClock.sleeperOf(GameMode.SURVIVAL, false, 7, true));
+    }
+
+    @Test
+    void sleepingPercentageIsTheGameruleValue() {
+        GameRule<Integer> rule = BukkitWorldClock.findSleepingPercentageRule();
+        assertEquals(37, BukkitWorldClock.sleepingPercentage(rule, r -> 37));
+        assertEquals(0, BukkitWorldClock.sleepingPercentage(rule, r -> 0));
+    }
+
+    @Test
+    void sleepingPercentageFallsBackToEveryPlayerWhenTheRuleIsMissing() {
+        assertEquals(SleepRule.DEFAULT_SLEEPING_PERCENTAGE, BukkitWorldClock.sleepingPercentage(null, r -> 37));
+        assertEquals(100, SleepRule.DEFAULT_SLEEPING_PERCENTAGE);
+    }
+
+    @Test
+    void sleepingPercentageFallsBackToEveryPlayerWhenTheWorldHasNoValue() {
+        GameRule<Integer> rule = BukkitWorldClock.findSleepingPercentageRule();
+        assertEquals(SleepRule.DEFAULT_SLEEPING_PERCENTAGE, BukkitWorldClock.sleepingPercentage(rule, r -> null));
     }
 }

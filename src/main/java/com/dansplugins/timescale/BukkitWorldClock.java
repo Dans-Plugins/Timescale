@@ -55,12 +55,44 @@ public final class BukkitWorldClock implements WorldClock {
     public static List<WorldClock> scaledWorlds(List<World> worlds, GameRule<Boolean> daylightCycleRule,
                                                 GameRule<Integer> sleepingPercentageRule) {
         List<WorldClock> clocks = new ArrayList<>();
-        for (World world : worlds) {
-            if (isScaled(world.getEnvironment())) {
-                clocks.add(new BukkitWorldClock(world, daylightCycleRule, sleepingPercentageRule));
-            }
+        for (World world : scaledOnly(worlds, World::getEnvironment)) {
+            clocks.add(new BukkitWorldClock(world, daylightCycleRule, sleepingPercentageRule));
         }
         return clocks;
+    }
+
+    /** Returns the {@code worlds} whose environment, as given by {@code environmentOf}, is scaled, in order. */
+    static <W> List<W> scaledOnly(List<W> worlds, Function<W, World.Environment> environmentOf) {
+        List<W> scaled = new ArrayList<>();
+        for (W world : worlds) {
+            if (isScaled(environmentOf.apply(world))) {
+                scaled.add(world);
+            }
+        }
+        return scaled;
+    }
+
+    /** Reads a daylight-cycle gamerule value, treating a missing ({@code null}) value as off. */
+    static boolean isOn(Boolean daylightCycleValue) {
+        return Boolean.TRUE.equals(daylightCycleValue);
+    }
+
+    /** Describes one player for {@link SleepRule}; only spectators are left out of the count. */
+    static SleepRule.Sleeper sleeperOf(GameMode gameMode, boolean sleeping, int sleepTicks, boolean sleepingIgnored) {
+        return new SleepRule.Sleeper(gameMode == GameMode.SPECTATOR, sleeping, sleepTicks, sleepingIgnored);
+    }
+
+    /**
+     * Returns the sleeping percentage to apply, falling back to
+     * {@value SleepRule#DEFAULT_SLEEPING_PERCENTAGE} when {@code rule} was not found on this server or
+     * {@code valueOf} returns {@code null} for it.
+     */
+    static int sleepingPercentage(GameRule<Integer> rule, Function<GameRule<Integer>, Integer> valueOf) {
+        if (rule == null) {
+            return SleepRule.DEFAULT_SLEEPING_PERCENTAGE;
+        }
+        Integer value = valueOf.apply(rule);
+        return value != null ? value : SleepRule.DEFAULT_SLEEPING_PERCENTAGE;
     }
 
     /** Returns this server's daylight-cycle gamerule, or {@code null} if none of the known names resolves. */
@@ -138,7 +170,7 @@ public final class BukkitWorldClock implements WorldClock {
 
     @Override
     public boolean isDaylightCycle() {
-        return Boolean.TRUE.equals(world.getGameRuleValue(daylightCycleRule));
+        return isOn(world.getGameRuleValue(daylightCycleRule));
     }
 
     @Override
@@ -150,17 +182,9 @@ public final class BukkitWorldClock implements WorldClock {
     public boolean isNightSkipped() {
         List<SleepRule.Sleeper> sleepers = new ArrayList<>();
         for (Player player : world.getPlayers()) {
-            sleepers.add(new SleepRule.Sleeper(player.getGameMode() == GameMode.SPECTATOR, player.isSleeping(),
-                    player.getSleepTicks(), player.isSleepingIgnored()));
+            sleepers.add(sleeperOf(player.getGameMode(), player.isSleeping(), player.getSleepTicks(),
+                    player.isSleepingIgnored()));
         }
-        return SleepRule.isNightSkipped(sleepers, sleepingPercentage());
-    }
-
-    private int sleepingPercentage() {
-        if (sleepingPercentageRule == null) {
-            return SleepRule.DEFAULT_SLEEPING_PERCENTAGE;
-        }
-        Integer value = world.getGameRuleValue(sleepingPercentageRule);
-        return value != null ? value : SleepRule.DEFAULT_SLEEPING_PERCENTAGE;
+        return SleepRule.isNightSkipped(sleepers, sleepingPercentage(sleepingPercentageRule, world::getGameRuleValue));
     }
 }
