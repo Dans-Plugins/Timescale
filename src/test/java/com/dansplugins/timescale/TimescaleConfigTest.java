@@ -46,6 +46,20 @@ class TimescaleConfigTest {
     }
 
     @Test
+    void missingRatioWarnsEvenWithTheBundledConfigAsDefaults() throws Exception {
+        // JavaPlugin.getConfig() attaches the bundled config.yml as defaults, so a removed key
+        // must not be silently filled in from them without the warning.
+        YamlConfiguration config = new YamlConfiguration();
+        config.loadFromString("day-ratio: 3.0\n");
+        config.setDefaults(bundledConfig());
+        TimescaleConfig parsed = TimescaleConfig.from(config);
+        assertEquals(3.0, parsed.getDayRatio());
+        assertEquals(TimescaleConfig.DEFAULT_RATIO, parsed.getNightRatio());
+        assertEquals(1, parsed.getWarnings().size(), parsed.getWarnings().toString());
+        assertTrue(parsed.getWarnings().get(0).contains("night-ratio is not set"), parsed.getWarnings().get(0));
+    }
+
+    @Test
     void nonNumericRatioFallsBackToVanillaWithWarning() throws Exception {
         TimescaleConfig config = parse("day-ratio: slow\nnight-ratio: 2.0\n");
         assertEquals(TimescaleConfig.DEFAULT_RATIO, config.getDayRatio());
@@ -106,13 +120,16 @@ class TimescaleConfigTest {
 
     @Test
     void bundledDefaultConfigIsVanillaSpeedWithoutWarnings() throws IOException {
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream("config.yml")) {
+        TimescaleConfig config = TimescaleConfig.from(bundledConfig());
+        assertEquals(1.0, config.getDayRatio());
+        assertEquals(1.0, config.getNightRatio());
+        assertTrue(config.getWarnings().isEmpty(), config.getWarnings().toString());
+    }
+
+    private static YamlConfiguration bundledConfig() throws IOException {
+        try (InputStream in = TimescaleConfigTest.class.getClassLoader().getResourceAsStream("config.yml")) {
             assertNotNull(in, "config.yml must be on the classpath");
-            YamlConfiguration yaml = YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
-            TimescaleConfig config = TimescaleConfig.from(yaml);
-            assertEquals(1.0, config.getDayRatio());
-            assertEquals(1.0, config.getNightRatio());
-            assertTrue(config.getWarnings().isEmpty(), config.getWarnings().toString());
+            return YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
         }
     }
 }

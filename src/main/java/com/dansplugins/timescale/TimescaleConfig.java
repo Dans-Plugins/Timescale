@@ -55,7 +55,9 @@ public final class TimescaleConfig {
     }
 
     private static double readRatio(ConfigurationSection section, String key, List<String> warnings) {
-        Object value = section.get(key);
+        // get(key) would fall back to the bundled config.yml, which JavaPlugin attaches as defaults,
+        // so a removed key would read as 1.0 without the warning.
+        Object value = section.get(key, null);
         if (value == null) {
             warnings.add(key + " is not set; using " + DEFAULT_RATIO);
             return DEFAULT_RATIO;
