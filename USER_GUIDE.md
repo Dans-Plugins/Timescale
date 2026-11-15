@@ -37,7 +37,7 @@ The ratios apply to every overworld-type world on the server. There are no per-w
 
 Run `/timescale set <day> <night>`, for example `/timescale set 3 1`. This needs the `timescale.view` and `timescale.set` permissions; everyone has `timescale.view` and operators have `timescale.set` by default. The new ratios apply from the next tick and are saved to `config.yml`.
 
-You can also edit `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml`. An edit to the file takes effect on the next server start, and `/timescale set` replaces any edit that has not taken effect yet. A value that is not a number, or is below the minimum, falls back to `1.0`, with a warning in the server log.
+You can also edit `day-ratio` and `night-ratio` in `plugins/Timescale/config.yml`. An edit to the file takes effect on the next server start, and `/timescale set` replaces any edit that has not taken effect yet. A ratio that is missing, is not a number, is not finite (such as `.inf`) or is below the minimum falls back to `1.0`, with a warning naming the key in the server log.
 
 ## Sleeping
 
